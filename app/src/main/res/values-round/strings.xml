@@ -1,3 +1,7 @@
 <resources>
     <string name="hello_world">Hello Round World!</string>
+    <string name="cup_of_tea">Cup of tea</string>
+    <string name="roo">Roo</string>
+    <string name="fruit">Fruit</string>
+    <string name="white">White</string>
 </resources>
