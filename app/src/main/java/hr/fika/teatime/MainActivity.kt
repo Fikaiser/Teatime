@@ -1,8 +1,6 @@
 package hr.fika.teatime
 
-import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -16,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,50 +28,54 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            WearApp("Android")
+            WearApp()
         }
     }
 }
 
 @Composable
-fun WearApp(greetingName: String) {
-
+fun WearApp() {
+    val model = TeatimeViewModel()
     WearAppTheme {
-        /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-         * version of LazyColumn for wear devices with some added features. For more information,
-         * see d.android.com/wear/compose.
-         */
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
                 .background(MaterialTheme.colors.background)
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
         ) {
-            TeaButton(title = "roo")
-            TeaButton(title = "fruit")
-            TeaButton(title = "white")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .background(MaterialTheme.colors.background)
+                    .padding(horizontal = dimensionResource(id = R.dimen.padding)),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TeaButton(title = stringResource(id = R.string.roo), duration = 5, model)
+                TeaButton(title = stringResource(id = R.string.fruit), duration = 8, model)
+                TeaButton(title = stringResource(id = R.string.white), duration = 2, model)
+            }
+            StatusText(model = model)
         }
     }
 }
 
 @Composable
-fun TeaButton(title: String) {
+fun TeaButton(title: String, duration: Int, model: TeatimeViewModel) {
     val context = LocalContext.current
     Column(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
-            .clickable { displayToast(context = context,text = title) }
-            .selectableGroup(),
+            .clickable { model.runAlarm(context = context, duration = duration, title = title) },
         verticalArrangement = Arrangement.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.cup),
-            contentDescription = "Cup of tea",
+            contentDescription = stringResource(id = R.string.cup_of_tea),
             modifier = Modifier
-                .width(40.dp)
-                .height(40.dp)
+                .width(dimensionResource(id = R.dimen.icon_size))
+                .height(dimensionResource(id = R.dimen.icon_size))
         )
         Text(
             textAlign = TextAlign.Center,
@@ -82,13 +85,20 @@ fun TeaButton(title: String) {
     }
 }
 
-
-fun displayToast(context: Context, text: String) {
-    Toast.makeText(context,text,Toast.LENGTH_SHORT).show()
+@Composable
+fun StatusText(model: TeatimeViewModel) {
+    Text(
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.primary,
+        text = model.status,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(id = R.dimen.top_padding))
+    )
 }
 
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp()
 }
